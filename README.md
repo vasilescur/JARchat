@@ -68,3 +68,7 @@ Tested on:
 #### Additional Features
 
 - [ ] Users can transfer files through the program
+
+## License
+
+This software is available under the GNU General Public License (GPL) v3.0 (see `LICENSE`), as mandated by the license of our compiler, [GNAT Community Edition](https://www.adacore.com/community).
