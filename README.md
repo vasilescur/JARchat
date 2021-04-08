@@ -54,7 +54,6 @@ Tested on:
 - [x] When starting the app, users can pick `server` or `client`
 - [ ] Server: Program prompts for, parses, and uses a user-specified port
 - [ ] Client: Program prompts for, parses, and uses a user-specified IP address and port
-
 - [ ] Terminal displays a scrolling view of (decrypted) incoming messages as they arrive
 - [ ] Program offers a prompt where users can type in messages
 
