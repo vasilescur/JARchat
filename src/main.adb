@@ -64,6 +64,9 @@ procedure Main is
       Client_Private_Key : String(1..16) := "privateKeyClient";
 
       Server_Public_Key  : String(1..16);
+
+      Plaintext_Message : String(1..256); Message_Last : Natural := 256;
+      Unenc_Send_Buffer : Ada.Streams.Stream_Element_Array(1..Stream_Element_Offset (256));
    begin
       GNAT.Sockets.Initialize;
 
@@ -84,7 +87,24 @@ procedure Main is
 
       if VERBOSE then Put_Line ("Server public key is: " & Server_Public_Key); end if;
 
-      -- TODO: Chat functionality goes here
+      -- Chat functionality goes here
+      -- TODO: Put this in a thread for concurrenct send/receive
+
+      -- SENDING --
+      Put ("message > ");
+      Get_Line (Plaintext_Message, Message_Last);
+
+      if VERBOSE then Put_Line ("Sending some unencrypted message: " & Plaintext_Message); end if;
+
+      for I in Unenc_Send_Buffer'Range loop
+         Unenc_Send_Buffer (I) := Stream_Element (Character'Pos (Plaintext_Message (Integer (I))));
+      end loop;
+
+      -- TODO: Use an encrypted buffer
+      -- TODO: Change address and port to those of recipient
+      Connection.Client.Send_Message(Client_Sock, "127.0.0.1", 123, Unenc_Send_Buffer);
+   
+      -- End chat functionality
 
       if VERBOSE then Put_Line ("Closing connection."); end if;
       Connection.Close (Client_Sock);
