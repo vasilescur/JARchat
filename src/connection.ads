@@ -14,6 +14,10 @@ procedure Read_Assert_Skip_Pattern (Channel : Stream_Access;
 procedure Read_Fixed_Length (Channel     : Stream_Access;
                              Destination : out String);
 
+procedure Read_Until_Sentinel (Channel     : Stream_Access;
+                               Destination : out String;
+                               Msg_Last    : out Natural);
+
 -- Read (and ignore) all available data from the stream.
 procedure Read_Flush (Channel : Stream_Access);
 
