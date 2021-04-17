@@ -136,6 +136,9 @@ procedure Main is
       end Server_Recv;
 
    begin
+      -- Generate a keypair 
+      Crypto.Gen_Keypair (Server_Public_Key, Server_Private_Key);
+
       -- TODO: Prompt user for the port
       if VERBOSE then put_Line ("Opening server on port 123"); end if;
 
@@ -172,9 +175,6 @@ procedure Main is
       Server_Send_Channel := GNAT.Sockets.Stream (Server_Send_Connection);
 
       if VERBOSE then Put_Line ("Connected to client."); end if;
-
-      -- Generate a keypair 
-      Crypto.Gen_Keypair (Server_Public_Key, Server_Private_Key);
 
       -- Send my public key to the client
       String'Write (Server_Send_Channel, "public " & Server_Public_Key);
@@ -259,6 +259,9 @@ procedure Main is
          Connection.Close (Client_Recv_Connection);
       end Client_Recv;
    begin
+      -- Generate keypair 
+      Crypto.Gen_Keypair (Client_Public_Key, Client_Private_Key);
+
       GNAT.Sockets.Initialize;
 
       -- Open a socket to wait for the server to connect
@@ -287,10 +290,6 @@ procedure Main is
       Client_Recv_Channel := GNAT.Sockets.Stream (Client_Recv_Connection);
 
       if VERBOSE then Put_Line ("Connection established. Sending public key"); end if;
-
-      -- Generate keypair 
-      Crypto.Gen_Keypair (Client_Public_Key, Client_Private_Key);
-      Crypto.Gen_Keypair (Client_Public_Key, Client_Private_Key);
 
       -- Send my public key to the server
       String'Write (Client_Send_Channel, "public " & Client_Public_Key);

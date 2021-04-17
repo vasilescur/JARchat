@@ -21,8 +21,6 @@ begin
 
     Public := Value (Gen_Public, 32);
     Priv := Value (Gen_Private, 32);
-
-    Put_Line ("Just generated (" & Public & ", " & Priv & ")");
 end Gen_Keypair;
 
 end Crypto;
