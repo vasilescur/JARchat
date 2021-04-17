@@ -1,5 +1,6 @@
 with Ada.Text_IO; use Ada.Text_IO;
 with GNAT.Sockets;
+with Gnat.OS_Lib;
 with Ada.Streams; use Ada.Streams;
 
 with Connection;
@@ -82,6 +83,56 @@ procedure Main is
       -- Client info      
       Client_Addr        : GNAT.Sockets.Sock_Addr_Type;
       Client_Host_Port   : GNAT.Sockets.Port_Type;
+
+      -- Tasks
+      task Server_Send is 
+         entry Handshake_Done;
+      end Server_Send;
+
+      task body Server_Send is 
+         Plaintext_Message       : String(1..256);
+         Plaintext_Message_Last  : Natural;
+      begin 
+         accept Handshake_Done;
+
+         loop
+            Put ("> ");
+            Get_Line (Plaintext_Message, Plaintext_Message_Last);
+            exit when Plaintext_Message(Plaintext_Message'First..Plaintext_Message_Last) = "exit";
+
+            -- if VERBOSE then Put_Line ("Sending unencrypted message: " & Plaintext_Message(Plaintext_Message'First..Plaintext_Message_Last)); end if;
+
+            String'Write (Server_Send_Channel, Plaintext_Message(Plaintext_Message'First..Plaintext_Message_Last) & "$");
+         end loop;
+
+         String'Write (Server_Send_Channel, "/exit$");
+         Connection.Close (Server_Send_Connection);
+      end Server_Send;
+
+
+      task Server_Recv is
+         entry Handshake_Done;
+      end Server_Recv;
+
+      task body Server_Recv is 
+         Recv_Message         : String(1..256);
+         Recv_Message_Last    : Natural;
+      begin
+         accept Handshake_Done;
+
+         loop
+            Connection.Read_Until_Sentinel (Server_Recv_Channel, Recv_Message, Recv_Message_Last);
+
+            exit when Recv_Message(Recv_Message'First..Recv_Message_Last) = "/exit";
+
+            Put (Character'Val (13));
+            Put_Line ("[client] " & Recv_Message(Recv_Message'First..Recv_Message_Last));
+            Put ("> ");
+         end loop;
+
+         Connection.Close (Server_Recv_Connection);
+      end Server_Recv;
+
    begin
       -- TODO: Prompt user for the port
       if VERBOSE then put_Line ("Opening server on port 123"); end if;
@@ -129,17 +180,10 @@ procedure Main is
 
       if VERBOSE then Put_Line ("Client public key is: " & Client_Public_Key); end if;
 
+      if VERBOSE then Put_Line ("Waking up Server_Send, Server_Recv"); end if;
+      Server_Send.Handshake_Done;
+      Server_Recv.Handshake_Done;
 
-      -- -- TODO: Chat functionality goes here
-      -- loop
-      --    Connection.Read_Until_Sentinel (Server_Channel, Rec_Message, Rec_Message_Last);
-      --    exit when Rec_Message(Rec_Message'First..Rec_Message_Last) = "/exit";
-      --    Put_Line ("[client] " & Rec_Message(Rec_Message'First..Rec_Message_Last));
-      -- end loop;
-
-      if VERBOSE then Put_Line ("Closing connections."); end if;
-      Connection.Close (Server_Send_Connection);
-      Connection.Close (Server_Recv_Connection);
    end Server;
 
    procedure Client is
@@ -160,17 +204,66 @@ procedure Main is
 
       -- Server info 
       Server_Addr        : GNAT.Sockets.Sock_Addr_Type;
+
+      -- Tasks
+      task Client_Send is 
+         entry Handshake_Done;
+      end Client_Send;
+
+      task body Client_Send is 
+         Plaintext_Message       : String(1..256);
+         Plaintext_Message_Last  : Natural;
+      begin 
+         accept Handshake_Done;
+
+         loop
+            Put ("> ");
+            Get_Line (Plaintext_Message, Plaintext_Message_Last);
+            exit when Plaintext_Message(Plaintext_Message'First..Plaintext_Message_Last) = "exit";
+
+            -- if VERBOSE then Put_Line ("Sending unencrypted message: " & Plaintext_Message(Plaintext_Message'First..Plaintext_Message_Last)); end if;
+
+            String'Write (Client_Send_Channel, Plaintext_Message(Plaintext_Message'First..Plaintext_Message_Last) & "$");
+         end loop;
+
+         String'Write (Client_Send_Channel, "/exit$");
+         Connection.Close (Client_Send_Connection);
+      end Client_Send;
+
+
+      task Client_Recv is
+         entry Handshake_Done;
+      end Client_Recv;
+
+      task body Client_Recv is 
+         Recv_Message         : String(1..256);
+         Recv_Message_Last    : Natural;
+      begin
+         accept Handshake_Done;
+
+         loop
+            Connection.Read_Until_Sentinel (Client_Recv_Channel, Recv_Message, Recv_Message_Last);
+
+            exit when Recv_Message(Recv_Message'First..Recv_Message_Last) = "/exit";
+
+            Put (Character'Val (13));
+            Put_Line ("[server] " & Recv_Message(Recv_Message'First..Recv_Message_Last));
+            Put ("> ");
+         end loop;
+
+         Connection.Close (Client_Recv_Connection);
+      end Client_Recv;
    begin
       GNAT.Sockets.Initialize;
+
+      -- Open a socket to wait for the server to connect
+      Connection.Server.Start_Server (Client_Host_Sock, 124);
 
       -- Connect to the server
       -- TODO: Prompt user for server address and port 
       if VERBOSE then Put_Line ("Connecting to the server"); end if;
       Connection.Client.Connect (Client_Send_Connection, "127.0.0.1", 123);
       Client_Send_Channel := GNAT.Sockets.Stream (Client_Send_Connection);
-
-      -- Open a socket and wait for the server to connect
-      Connection.Server.Start_Server (Client_Host_Sock, 124);
 
       -- Send our connection info to the server
       -- FIXME 
@@ -199,33 +292,10 @@ procedure Main is
 
       if VERBOSE then Put_Line ("Server public key is: " & Server_Public_Key); end if;
 
-      -- -- Chat functionality goes here
-
-      -- -- SENDING --
-      -- loop
-      --    Put ("message > ");
-      --    Get_Line (Plaintext_Message, Message_Last);
-      --    exit when Plaintext_Message(Plaintext_Message'First..Message_Last) = "exit";
-
-      --    if VERBOSE then Put_Line ("Sending some unencrypted message: " & Plaintext_Message(Plaintext_Message'First..Message_Last)); end if;
-
-      --    String'Write (Client_Channel, Plaintext_Message(Plaintext_Message'First..Message_Last) & "$");
-      -- end loop;
-
-      -- String'Write (Client_Channel, "/exit$");
-
-      -- for I in Unenc_Send_Buffer'Range loop
-      --    Unenc_Send_Buffer (I) := Stream_Element (Character'Pos (Plaintext_Message (Integer (I))));
-      -- end loop
-
-      -- TODO: Change address and port to those of recipient
-      -- Connection.Client.Send_Message(Client_Sock, "127.0.0.1", 123, Unenc_Send_Buffer);
-   
-      -- End chat functionality
-
-      if VERBOSE then Put_Line ("Closing connections."); end if;
-      Connection.Close (Client_Send_Connection);
-      Connection.Close (Client_Recv_Connection);
+      -- Wake up threads, chat functionality begins
+      if VERBOSE then Put_Line ("Waking up Client_Send, Client_Recv"); end if;
+      Client_Send.Handshake_Done;
+      Client_Recv.Handshake_Done;
 
    end Client;
 begin
