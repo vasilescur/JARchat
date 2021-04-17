@@ -263,7 +263,7 @@ struct key_t *parse_key(char *input) {
     return result;
 }
 
-void gen(char *pub_out, char *priv_out) {
+void gen(char **pub_out, char **priv_out) {
     struct key_t *pub = (struct key_t *)malloc(sizeof(struct key_t));
     struct key_t *priv = (struct key_t *)malloc(sizeof(struct key_t));
 
@@ -272,10 +272,11 @@ void gen(char *pub_out, char *priv_out) {
     char *pub_str = serialize_key(pub);
     char *priv_str = serialize_key(priv);
 
-    strcpy(pub_out, pub_str);
-    strcpy(priv_out, priv_str);
+    *pub_out = (char *)malloc(sizeof(char) * 32);
+    *priv_out = (char *)malloc(sizeof(char) * 32);
 
-    return;
+    strcpy(*pub_out, pub_str);
+    strcpy(*priv_out, priv_str);
 }
 
 char *encrypt(const char *message, const struct key_t *pub) {
@@ -298,4 +299,14 @@ char *decrypt(const char *message, const struct key_t *priv) {
     }
 
     return rsa_decrypt(encrypted, strlen(message) / 2, priv);
+}
+
+char *encrypt_str(const char *message, const char *pub) {
+    struct key_t *pub_key = parse_key(pub);
+    return encrypt(message, pub_key);
+}
+
+char *decrypt_str(const char *message, const char *priv) {
+    struct key_t *priv_key = parse_key(priv);
+    return decrypt(message, priv_key);
 }

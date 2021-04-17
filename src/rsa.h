@@ -33,10 +33,13 @@ char *serialize_key(const struct key_t *key);
 // Parse a string into a key
 struct key_t *parse_key(char *input);
 
-// Wrapper fns for Ada
-void gen(char *pub_out, char *priv_out);
+// Wrapper functions for string serialized cyphertext
 char *encrypt(const char *message, const struct key_t *pub);
 char *decrypt(const char *message, const struct key_t *priv);
 
+// Wrapper fns for Ada
+void gen(char **pub_out, char **priv_out);
+char *encrypt_str(const char *message, const char *pub);
+char *decrypt_str(const char *message, const char *priv);
 
 #endif

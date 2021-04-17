@@ -7,6 +7,8 @@ with Connection;
 with Connection.Server;
 with Connection.Client;
 
+with Crypto;
+
 -- Server:
 --    - Server_Recv_Sock, Server_Recv_Channel
 --    - Server_Send_Sock, Server_Send_Channel
@@ -75,10 +77,10 @@ procedure Main is
       Server_Send_Channel     : GNAT.Sockets.Stream_Access;
 
       -- Keys
-      Server_Public_Key  : String(1..16) := "publicKeyServer0";
-      Server_Private_Key : String(1..16) := "privateKeyServer";
+      Server_Public_Key  : Crypto.Key;
+      Server_Private_Key : Crypto.Key;
 
-      Client_Public_Key  : String(1..16);
+      Client_Public_Key  : Crypto.Key;
 
       -- Client info      
       Client_Addr        : GNAT.Sockets.Sock_Addr_Type;
@@ -171,6 +173,9 @@ procedure Main is
 
       if VERBOSE then Put_Line ("Connected to client."); end if;
 
+      -- Generate a keypair 
+      Crypto.Gen_Keypair (Server_Public_Key, Server_Private_Key);
+
       -- Send my public key to the client
       String'Write (Server_Send_Channel, "public " & Server_Public_Key);
 
@@ -197,10 +202,10 @@ procedure Main is
       Client_Recv_Channel     : GNAT.Sockets.Stream_Access;
 
       -- Keys 
-      Client_Public_Key  : String(1..16) := "publicKeyClient0";
-      Client_Private_Key : String(1..16) := "privateKeyClient";
+      Client_Public_Key  : Crypto.Key;
+      Client_Private_Key : Crypto.Key;
 
-      Server_Public_Key  : String(1..16);
+      Server_Public_Key  : Crypto.Key;
 
       -- Server info 
       Server_Addr        : GNAT.Sockets.Sock_Addr_Type;
@@ -283,6 +288,10 @@ procedure Main is
 
       if VERBOSE then Put_Line ("Connection established. Sending public key"); end if;
 
+      -- Generate keypair 
+      Crypto.Gen_Keypair (Client_Public_Key, Client_Private_Key);
+      Crypto.Gen_Keypair (Client_Public_Key, Client_Private_Key);
+
       -- Send my public key to the server
       String'Write (Client_Send_Channel, "public " & Client_Public_Key);
 
@@ -298,6 +307,7 @@ procedure Main is
       Client_Recv.Handshake_Done;
 
    end Client;
+
 begin
    Put ("(client/server) > ");
    Get_Line (Command, Command_Last);
