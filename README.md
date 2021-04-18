@@ -37,25 +37,24 @@ Tested on:
 
 #### Connection Handshake and Key Exchange (Radu)
 
-- [ ] Program generates keypair when started
+- [x] Program generates keypair when started
 - [x] Connection between two running instances of the program
 - [x] Public key exchange/save when connected
-  - Currently exchanging dummy data as placeholder for public keys
-- [ ] Cleanly exits in the event of a dropped connection
+- [x] Cleanly exits in the event of a dropped connection
 
 #### Sending and Receiving Messages With Encryption (James)
 
-- [ ] Software can encrypt and send messages over the network connection
-- [ ] Software listens for incoming messages and decrypts them
-- [ ] Concurrency -- can send and receive messages at the same time
+- [x] Software can encrypt and send messages over the network connection
+- [x] Software listens for incoming messages and decrypts them
+- [x] Concurrency -- can send and receive messages at the same time
 
 #### Frontend - Terminal-based Conversation View (Adam)
 
 - [x] When starting the app, users can pick `server` or `client`
 - [ ] Server: Program prompts for, parses, and uses a user-specified port
 - [ ] Client: Program prompts for, parses, and uses a user-specified IP address and port
-- [ ] Terminal displays a scrolling view of (decrypted) incoming messages as they arrive
-- [ ] Program offers a prompt where users can type in messages
+- [x] Terminal displays a scrolling view of (decrypted) incoming messages as they arrive
+- [x] Program offers a prompt where users can type in messages
 
 #### Address Book (Adam)
 
@@ -68,6 +67,7 @@ Tested on:
 #### Additional Features
 
 - [ ] Users can transfer files through the program
+- [ ] Program displays user's saved name (if available) when a message comes in, rather than just "server" or "client".
 
 ## License
 

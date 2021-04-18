@@ -46,11 +46,6 @@ begin
             Destination (I) := C;
 
             Chars := Chars + 1;
-            -- if (C = Character'Val(0)) then
-            -- if (C = "$") then
-            --     return;
-            -- else
-            -- end if; 
         end;
     end loop;
 

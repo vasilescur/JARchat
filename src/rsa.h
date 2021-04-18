@@ -3,6 +3,8 @@
 
 #include <stdint.h>
 
+// Adapted from https://github.com/andrewkiluk/RSA-Library
+
 // This is the header file for the library librsaencrypt.a
 
 struct key_t
