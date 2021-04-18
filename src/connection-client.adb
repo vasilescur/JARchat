@@ -1,3 +1,4 @@
+with Ada.Streams; use Ada.Streams;
 with GNAT.Sockets; use GNAT.Sockets;
 
 package body Connection.Client is

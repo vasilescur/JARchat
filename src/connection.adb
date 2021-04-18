@@ -32,6 +32,26 @@ begin
     end loop;
 end Read_Fixed_Length;
 
+procedure Read_Until_Sentinel (Channel     : Stream_Access;
+                               Destination : out String;
+                               Msg_Last    : out Natural) is
+    Chars : Natural := 0;
+begin 
+    for I in 1..Destination'Length loop 
+        declare 
+            C : Character := Character'Input (Channel);
+        begin 
+            exit when C = '$';
+
+            Destination (I) := C;
+
+            Chars := Chars + 1;
+        end;
+    end loop;
+
+    Msg_Last := Chars;
+end Read_Until_Sentinel;
+
 procedure Read_Flush (Channel : Stream_Access) is
     Trash : Character;
 begin 
