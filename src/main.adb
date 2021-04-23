@@ -12,6 +12,8 @@ with Connection.Client;
 
 with Crypto;
 
+with AddressBook;
+
 -- Server:
 --    - Server_Recv_Sock, Server_Recv_Channel
 --    - Server_Send_Sock, Server_Send_Channel
@@ -222,6 +224,7 @@ procedure Main is
     end Server;
 
     procedure Client is
+
         -- Sockets / Connections
         Client_Send_Connection : GNAT.Sockets.Socket_Type;
         Client_Send_Channel    : GNAT.Sockets.Stream_Access;
@@ -312,11 +315,30 @@ procedure Main is
         Connection.Server.Start_Server (Client_Host_Sock, 124);
 
         -- Connect to the server
-        -- TODO: Prompt user for server address
-        if VERBOSE then
-            Put_Line ("Connecting to the server");
-        end if;
-        Connection.Client.Connect (Client_Send_Connection, "127.0.0.1", 123);
+        declare
+            Input : String(1 .. 256);
+            Input_Length : Natural;
+
+            IP_Address : String(1..256);
+            IP_Address_Length : Natural;
+        begin 
+            Put ("(book / IP Address) > ");
+            Get_Line(Input, Input_Length);
+
+            if Input(Input'First..Input_Length) = "book" then 
+                
+            else 
+                IP_Address := Input(Input'First..Input_Length);
+                IP_Address_Length := Input_Length;
+            end if;
+            
+        
+            if VERBOSE then
+                Put_Line ("Connecting to the server");
+            end if;
+            Connection.Client.Connect (Client_Send_Connection, IP_Address(IP_Address'First..IP_Address_Length), 123);
+        end;
+
         Client_Send_Channel := GNAT.Sockets.Stream (Client_Send_Connection);
 
         if VERBOSE then

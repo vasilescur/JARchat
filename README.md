@@ -51,8 +51,7 @@ Tested on:
 #### Frontend - Terminal-based Conversation View (Adam)
 
 - [x] When starting the app, users can pick `server` or `client`
-- [ ] Server: Program prompts for, parses, and uses a user-specified port
-- [ ] Client: Program prompts for, parses, and uses a user-specified IP address and port
+- [x] Client: Program prompts for, parses, and uses a user-specified IP address 
 - [x] Terminal displays a scrolling view of (decrypted) incoming messages as they arrive
 - [x] Program offers a prompt where users can type in messages
 
