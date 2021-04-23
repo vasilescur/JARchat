@@ -12,7 +12,7 @@ with Connection.Client;
 
 with Crypto;
 
-with AddressBook;
+-- with AddressBook;
 
 -- Server:
 --    - Server_Recv_Sock, Server_Recv_Channel
@@ -326,9 +326,12 @@ procedure Main is
             Get_Line(Input, Input_Length);
 
             if Input(Input'First..Input_Length) = "book" then 
-                
+                --IP_Address := AddressBook.Address_Book_CLI;
+                --IP_Address_Length := IP_Address'Last;
+                IP_Address := "127.0.0.1";
+                IP_Address_Length := 9;
             else 
-                IP_Address := Input(Input'First..Input_Length);
+                IP_Address := Input;
                 IP_Address_Length := Input_Length;
             end if;
             
