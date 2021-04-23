@@ -1,9 +1,12 @@
+/*
+    JARchat RSA Library
+    Adapted from: https://github.com/andrewkiluk/RSA-Library
+*/
+
 #ifndef __RSA_H__
 #define __RSA_H__
 
 #include <stdint.h>
-
-// Adapted from https://github.com/andrewkiluk/RSA-Library
 
 // This is the header file for the library librsaencrypt.a
 

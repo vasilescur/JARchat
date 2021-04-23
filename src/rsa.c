@@ -1,3 +1,8 @@
+/*
+    JARchat RSA Library
+    Adapted from: https://github.com/andrewkiluk/RSA-Library
+*/
+
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
