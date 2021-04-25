@@ -11,8 +11,8 @@ with Connection.Server;
 with Connection.Client;
 
 with Crypto;
-
 with AddressBook;
+with FileTransfer;
 
 -- Server:
 --    - Server_Recv_Sock, Server_Recv_Channel
@@ -107,14 +107,32 @@ procedure Main is
                 Ada.Text_IO.Unbounded_IO.Get_Line (Plaintext_Message);
                 exit when Plaintext_Message = "exit";
 
-                -- Encrypt the message 
-                Encrypted_Message := To_Unbounded_String (Crypto.Encrypt (
-                    To_String (Plaintext_Message), Client_Public_Key)
-                );
+                -- Check for file transfers
+                if (Plaintext_Message = "/file") then
+                    Put ("path >");
 
-                String'Write
-                   (Server_Send_Channel,
-                    To_String (Encrypted_Message) & "$");
+                    declare
+                        Path        : String(1..256);
+                        Path_Length : Natural;
+                    begin
+                        Get_Line (Path, Path_Length);
+                        
+                        FileTransfer.Send_File (
+                            Filename => Path(Path'First..Path_Length), 
+                            Channel => Server_Send_Channel, 
+                            Key => Client_Public_Key
+                        );
+                    end;
+                else 
+                    -- Encrypt the message 
+                    Encrypted_Message := To_Unbounded_String (Crypto.Encrypt (
+                        To_String (Plaintext_Message), Client_Public_Key)
+                    );
+
+                    String'Write
+                    (Server_Send_Channel,
+                        To_String (Encrypted_Message) & "$");
+                end if;
             end loop;
 
             String'Write (Server_Send_Channel, "/exit$");
@@ -137,18 +155,29 @@ procedure Main is
                 Connection.Read_Until_Sentinel
                    (Server_Recv_Channel, Recv_Message, Recv_Message_Last);
                    
-                -- Decrypt the message 
-                Decrypted_Message := To_Unbounded_String(Crypto.Decrypt (
-                    Recv_Message(Recv_Message'First..Recv_Message_Last), 
-                    Server_Private_Key
-                ));
+                exit when Recv_Message(Recv_Message'First..Recv_Message_Last) = "/exit";
 
-                exit when Decrypted_Message = "/exit";
+                if Recv_Message(Recv_Message'First..Recv_Message_Last) = "/file" then 
+                    Put_Line ("Incoming file transfer. ");
 
-                Put (Character'Val (13));
-                Put_Line
-                   ("[client] " &
-                    To_String (Decrypted_Message));
+                    FileTransfer.Recv_File (
+                        Outpath => "./inbox/",
+                        Channel => Server_Recv_Channel,
+                        Key => Server_Private_Key
+                    );
+                else
+                    -- Decrypt the message 
+                    Decrypted_Message := To_Unbounded_String(Crypto.Decrypt (
+                        Recv_Message(Recv_Message'First..Recv_Message_Last), 
+                        Server_Private_Key
+                    ));
+
+                    Put (Character'Val (13));
+                    Put_Line
+                    ("[client] " &
+                        To_String (Decrypted_Message));
+                end if;
+
                 Put ("> ");
             end loop;
 
@@ -217,7 +246,6 @@ procedure Main is
     end Server;
 
     procedure Client is
-
         -- Sockets / Connections
         Client_Send_Connection : GNAT.Sockets.Socket_Type;
         Client_Send_Channel    : GNAT.Sockets.Stream_Access;
@@ -252,13 +280,32 @@ procedure Main is
                 Ada.Text_IO.Unbounded_IO.Get_Line (Plaintext_Message);
                 exit when Plaintext_Message = "exit";
 
-                Encrypted_Message := To_Unbounded_String (
-                    Crypto.Encrypt (To_String (Plaintext_Message), Server_Public_Key)
-                );
+                -- Check for file transfers
+                if (Plaintext_Message = "/file") then
+                    Put ("path >");
 
-                String'Write
-                   (Client_Send_Channel,
-                    To_String (Encrypted_Message) & "$");
+                    declare
+                        Path        : String(1..256);
+                        Path_Length : Natural;
+                    begin
+                        Get_Line (Path, Path_Length);
+                        
+                        FileTransfer.Send_File (
+                            Filename => Path(Path'First..Path_Length), 
+                            Channel => Client_Send_Channel, 
+                            Key => Server_Public_Key
+                        );
+                    end;
+                else 
+                    -- Encrypt the message 
+                    Encrypted_Message := To_Unbounded_String (Crypto.Encrypt (
+                        To_String (Plaintext_Message), Server_Public_Key)
+                    );
+
+                    String'Write
+                    (Client_Send_Channel,
+                        To_String (Encrypted_Message) & "$");
+                end if;
             end loop;
 
             String'Write (Client_Send_Channel, "/exit$");
@@ -281,18 +328,28 @@ procedure Main is
                 Connection.Read_Until_Sentinel
                    (Client_Recv_Channel, Recv_Message, Recv_Message_Last);
 
-                -- Decrypt the message 
-                Decrypted_Message := To_Unbounded_String (Crypto.Decrypt (
-                    Recv_Message(Recv_Message'First..Recv_Message_Last), 
-                    Client_Private_Key
-                ));
+                exit when Recv_Message(Recv_Message'First..Recv_Message_Last) = "/exit";
 
-                exit when Decrypted_Message = "/exit";
+                if Recv_Message(Recv_Message'First..Recv_Message_Last) = "/file" then 
+                    Put_Line ("Incoming file transfer. ");  
+                    FileTransfer.Recv_File (
+                        Outpath => "./inbox/",
+                        Channel => Client_Recv_Channel,
+                        Key => Client_Private_Key
+                    );
+                else
+                    -- Decrypt the message 
+                    Decrypted_Message := To_Unbounded_String(Crypto.Decrypt (
+                        Recv_Message(Recv_Message'First..Recv_Message_Last), 
+                        Client_Private_Key
+                    ));
 
-                Put (Character'Val (13));
-                Put_Line
-                   ("[client] " &
-                    To_String (Decrypted_Message));
+                    Put (Character'Val (13));
+                    Put_Line
+                    ("[client] " &
+                        To_String (Decrypted_Message));
+                end if;
+
                 Put ("> ");
             end loop;
 

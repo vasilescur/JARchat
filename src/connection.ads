@@ -24,3 +24,4 @@ procedure Read_Flush (Channel : Stream_Access);
 procedure Close (Sock : in out Socket_Type);
 
 end Connection;
+
