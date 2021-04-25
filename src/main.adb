@@ -179,14 +179,7 @@ procedure Main is
 
         Server_Recv_Channel := GNAT.Sockets.Stream (Server_Recv_Connection);
 
-        -- FIXME
         Client_Host_Port := 124;
-
-        -- if VERBOSE then
-        --     Put_Line
-        --        ("Client hosting on port " &
-        --         GNAT.Sockets.Port_Type'Image (Client_Host_Port));
-        -- end if;
 
         -- Connect to the client's host
         if VERBOSE then
@@ -384,7 +377,6 @@ begin
     if (Command (Command'First .. Command_Last) = "server") then
         Server;
     else
-        -- TODO: Address book implementation here.
         Client;
     end if;
 end Main;

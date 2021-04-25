@@ -187,7 +187,7 @@ begin
     Print_Contacts;
 
     loop
-        Put ("(add/edit/remove/contacts / Name) > ");
+        Put ("(add/edit/remove/contacts/exit / Name) > ");
         Get_Line (Input, Input_Length);
         exit when Input(Input'First..Input_Length) = "exit";
 
