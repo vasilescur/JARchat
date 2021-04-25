@@ -20,13 +20,41 @@ sudo obj/main
 
 Superuser privileges are required in order to bind to ports.
 
-### Running a server
+At this point, the software will ask `(server/client) >`.
+One end of the connection should start a `server` first, 
+  and then the client should connect to the server.
+To be clear: Two instances of the same software should be running.
 
-Launch the program, then at the prompt, enter `server`.
+At this point,
+  the software will perform a connection handshake and key exchange,
+  and either user can type and send messages at the prompt (`>`).
 
-### Running a client 
+### Using the Address Book
 
-Launch the program, then at the prompt, enter `client`.
+When starting a client, the user is given the option to enter `book`
+  or an IP address directly.
+If you enter `book`, the Address Book CLI will launch,
+  supporting the following commands:
+
+- `add <name> <IP>`
+- `edit <name> <New_IP>`
+- `delete <name>`
+- `contacts` - print out all the contacts
+- `name` - just enter a name in contacts to connect to the associated IP address
+
+To cleanly exit without specifying a name, use `exit`. The client will save any updates to `address_book.txt` in the root directory and connect to the default IP address.
+
+### Sending and Receiving Files
+
+Either the client or the server may at any time send the command `/file`.
+This will first prompt the sender for the filepath to send (relative to the JARchat main directory).
+Using file paths with more than just a filename in the JARchat directory causes issues.
+
+The file will then be sent over the network,
+  line by line, 
+  encrypted using the same encryption as regular messages.
+
+Received files are stored in the `inbox/` folder.
 
 ## Platform Support
 
@@ -57,16 +85,20 @@ Tested on:
 
 #### Address Book (Adam)
 
-- [ ] Program loads existing "remembered" bindings `(name, IP:port)` from address book file
-  - [ ] If there is no address book file, program creates one
-- [ ] Client: Users can opt to input a name from the address book instead of typing an IP address and port 
-- [ ] Users can create new entries to the address book, which are saved to the file and also loaded into memory (immediately use-able)
-- [ ] Users can delete existing entries from the address book
+- [x] Program loads existing "remembered" bindings `(name, IP:port)` from address book file
+  - [x] If there is no address book file, program creates one
+- [x] Client: Users can opt to input a name from the address book instead of typing an IP address and port 
+- [x] Users can create new entries to the address book, which are saved to the file and also loaded into memory (immediately use-able)
+- [x] Users can delete existing entries from the address book
 
 #### Additional Features
 
-- [ ] Users can transfer files through the program
-- [ ] Program displays user's saved name (if available) when a message comes in, rather than just "server" or "client".
+- [x] Users can transfer files through the program
+
+## Known Bugs and Constraints
+
+* Currently only text-based files can be sent via the file transfer feature. Especially long lines in text files also may overflow the receive buffer. 
+* If sending files from anywhere besides the root directory, a destination path must already exist in `/inbox` (i.e., if sending the file `/src/crypto.adb`, `/inbox` must contain a directory named `/src`).
 
 ## License
 
