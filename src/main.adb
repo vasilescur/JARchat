@@ -182,11 +182,11 @@ procedure Main is
         -- FIXME
         Client_Host_Port := 124;
 
-        if VERBOSE then
-            Put_Line
-               ("Client hosting on port " &
-                GNAT.Sockets.Port_Type'Image (Client_Host_Port));
-        end if;
+        -- if VERBOSE then
+        --     Put_Line
+        --        ("Client hosting on port " &
+        --         GNAT.Sockets.Port_Type'Image (Client_Host_Port));
+        -- end if;
 
         -- Connect to the client's host
         if VERBOSE then
@@ -315,28 +315,29 @@ procedure Main is
         Connection.Server.Start_Server (Client_Host_Sock, 124);
 
         -- Connect to the server
-        declare
-            Input : String(1 .. 256);
+        declare 
+            Input : String(1..256);
             Input_Length : Natural;
-
-            IP_Address : String(1..256);
-            IP_Address_Length : Natural;
         begin 
             Put ("(book / IP Address) > ");
             Get_Line(Input, Input_Length);
 
             if Input(Input'First..Input_Length) = "book" then 
-                IP_Address := AddressBook.Address_Book_CLI;
-                IP_Address_Length := AddressBook.Get_Recent_IP_Length;
-            else 
-                IP_Address := Input;
-                IP_Address_Length := Input_Length;
+                declare
+                    IP_Address : String := AddressBook.Address_Book_CLI;
+                    IP_Address_Length : Natural := AddressBook.Get_Recent_IP_Length;
+                begin
+                    if VERBOSE then
+                        Put_Line ("Connecting to server @ " & IP_Address);
+                    end if;
+                    Connection.Client.Connect (Client_Send_Connection, IP_Address, 123);
+                end;
+            else
+                if VERBOSE then
+                    Put_Line ("Connecting to the server");
+                end if;
+                Connection.Client.Connect (Client_Send_Connection, Input(Input'First..Input_Length), 123);          
             end if;
-        
-            if VERBOSE then
-                Put_Line ("Connecting to the server");
-            end if;
-            Connection.Client.Connect (Client_Send_Connection, IP_Address(IP_Address'First..IP_Address_Length), 123);
         end;
 
         Client_Send_Channel := GNAT.Sockets.Stream (Client_Send_Connection);
